@@ -229,6 +229,8 @@ void ieee80211_mesh_init_sdata(struct ieee80211_sub_if_data *sdata);
 void ieee80211_start_mesh(struct ieee80211_sub_if_data *sdata);
 void ieee80211_stop_mesh(struct ieee80211_sub_if_data *sdata);
 void ieee80211_mesh_root_setup(struct ieee80211_if_mesh *ifmsh);
+void ieee80211s_set_sta_ps_mode(struct sta_info *sta,
+				enum nl80211_mesh_power_mode mode);
 
 /* Mesh paths */
 int mesh_nexthop_lookup(struct sk_buff *skb,
