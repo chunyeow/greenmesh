@@ -2429,6 +2429,9 @@ struct sk_buff *ieee80211_beacon_get_tim(struct ieee80211_hw *hw,
 		memset(mgmt, 0, hdr_len);
 		mgmt->frame_control =
 		    cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_BEACON);
+		if (sdata->u.mesh.mshcfg.power_mode !=
+		    NL80211_MESH_POWER_ACTIVE)
+			mgmt->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
 		memset(mgmt->da, 0xff, ETH_ALEN);
 		memcpy(mgmt->sa, sdata->vif.addr, ETH_ALEN);
 		memcpy(mgmt->bssid, sdata->vif.addr, ETH_ALEN);
