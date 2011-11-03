@@ -55,6 +55,7 @@ const struct mesh_config default_mesh_config = {
 	.min_discovery_timeout = MESH_MIN_DISCOVERY_TIMEOUT,
 	.dot11MeshHWMPRannInterval = MESH_RANN_INTERVAL,
 	.dot11MeshGateAnnouncementProtocol = false,
+	.power_mode = NL80211_MESH_POWER_ACTIVE,
 };
 
 const struct mesh_setup default_mesh_setup = {
