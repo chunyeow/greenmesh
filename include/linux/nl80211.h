@@ -1114,6 +1114,7 @@ enum nl80211_commands {
  *	%NL80211_ATTR_SUPPORTED_IFTYPES) containing the interface types that
  *	are managed in software: interfaces of these types aren't subject to
  *	any restrictions in their number or combinations.
+ * @NL80211_ATTR_LOCAL_MESH_POWER_MODE: local mesh STA link-specific power mode
  *
  * @%NL80211_ATTR_REKEY_DATA: nested attribute containing the information
  *	necessary for GTK rekeying in the device, see &enum nl80211_rekey_data.
@@ -1472,6 +1473,8 @@ enum nl80211_attrs {
 	NL80211_ATTR_RX_SIGNAL_DBM,
 
 	NL80211_ATTR_BG_SCAN_PERIOD,
+
+	NL80211_ATTR_LOCAL_MESH_POWER_MODE,
 
 	/* add attributes here, update the policy in nl80211.c */
 

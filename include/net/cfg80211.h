@@ -475,6 +475,7 @@ enum station_parameters_apply_mask {
  *	as the AC bitmap in the QoS info field
  * @max_sp: max Service Period. same format as the MAX_SP in the
  *	QoS info field (but already shifted down)
+ * @local_ps_mode: local link-specific mesh power save mode
  * @sta_modify_mask: bitmap indicating which parameters changed
  *	(for those that don't have a natural "no change" value),
  *	see &enum station_parameters_apply_mask
@@ -492,6 +493,7 @@ struct station_parameters {
 	struct ieee80211_ht_cap *ht_capa;
 	u8 uapsd_queues;
 	u8 max_sp;
+	enum nl80211_mesh_power_mode local_ps_mode;
 };
 
 /**
