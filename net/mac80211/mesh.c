@@ -438,6 +438,39 @@ void ieee80211_mesh_root_setup(struct ieee80211_if_mesh *ifmsh)
 	}
 }
 
+void ieee80211s_set_local_ps_mode(struct sta_info *sta, u8 pm)
+{
+	switch (pm) {
+	case NL80211_MESH_POWER_ACTIVE:
+		sta->local_ps_mode = NL80211_MESH_POWER_ACTIVE;
+#ifdef CONFIG_MAC80211_VERBOSE_PS_DEBUG
+		printk(KERN_DEBUG "%s: local STA operates in active mode with STA %pM\n",
+			sta->sdata->name, sta->sta.addr);
+#endif /* CONFIG_MAC80211_VERBOSE_PS_DEBUG */
+		break;
+	case NL80211_MESH_POWER_LIGHT_SLEEP:
+		sta->local_ps_mode = NL80211_MESH_POWER_LIGHT_SLEEP;
+#ifdef CONFIG_MAC80211_VERBOSE_PS_DEBUG
+		printk(KERN_DEBUG "%s: local STA operates in light sleep mode with STA %pM\n",
+				sta->sdata->name, sta->sta.addr);
+#endif /* CONFIG_MAC80211_VERBOSE_PS_DEBUG */
+		break;
+	case NL80211_MESH_POWER_DEEP_SLEEP:
+		sta->local_ps_mode = NL80211_MESH_POWER_DEEP_SLEEP;
+#ifdef CONFIG_MAC80211_VERBOSE_PS_DEBUG
+		printk(KERN_DEBUG "%s: local STA operates in deep sleep mode with STA %pM\n",
+				sta->sdata->name, sta->sta.addr);
+#endif /* CONFIG_MAC80211_VERBOSE_PS_DEBUG */
+		break;
+	default:
+#ifdef CONFIG_MAC80211_VERBOSE_PS_DEBUG
+		printk(KERN_DEBUG "%s: local STA used invalid power mode to operate with STA %pM\n",
+				sta->sdata->name, sta->sta.addr);
+#endif /* CONFIG_MAC80211_VERBOSE_PS_DEBUG */
+		break;
+	}
+}
+
 /**
  * ieee80211_fill_mesh_addresses - fill addresses of a locally originated mesh frame
  * @hdr:    	802.11 frame header
