@@ -1179,6 +1179,34 @@ int ieee80211_sta_ps_transition(struct ieee80211_sta *sta, bool start)
 }
 EXPORT_SYMBOL(ieee80211_sta_ps_transition);
 
+void ieee80211s_set_sta_ps_mode(struct sta_info *sta,
+				enum nl80211_mesh_power_mode mode)
+{
+	if (sta->peer_ps_mode != mode) {
+		sta->peer_ps_mode = mode;
+#ifdef CONFIG_MAC80211_VERBOSE_PS_DEBUG
+		switch (mode) {
+		case NL80211_MESH_POWER_ACTIVE:
+			printk(KERN_DEBUG "%s: STA %pM enters active mode\n",
+				sta->sdata->name, sta->sta.addr);
+			break;
+		case NL80211_MESH_POWER_LIGHT_SLEEP:
+			printk(KERN_DEBUG "%s: STA %pM enters light sleep mode\n",
+				sta->sdata->name, sta->sta.addr);
+			break;
+		case NL80211_MESH_POWER_DEEP_SLEEP:
+			printk(KERN_DEBUG "%s: STA %pM enters deep sleep mode\n",
+				sta->sdata->name, sta->sta.addr);
+			break;
+		default:
+			printk(KERN_DEBUG "%s: STA %pM used invalid power save mode\n",
+				sta->sdata->name, sta->sta.addr);
+			break;
+		}
+#endif /* CONFIG_MAC80211_VERBOSE_PS_DEBUG */
+	}
+}
+
 static ieee80211_rx_result debug_noinline
 ieee80211_rx_h_uapsd_and_pspoll(struct ieee80211_rx_data *rx)
 {
@@ -1329,6 +1357,37 @@ ieee80211_rx_h_sta_process(struct ieee80211_rx_data *rx)
 		} else {
 			if (ieee80211_has_pm(hdr->frame_control))
 				ap_sta_ps_start(sta);
+		}
+	}
+
+	/*
+	 * Test mesh power save level subfield of QoS control field (PSL)
+	 * and Power Managment field of frame control (PW)
+	 * +----+----+-----------------+
+	 * | PM | PSL| Mesh Power Mode |
+	 * +----+----+-----------------+
+	 * | 0  |Rsrv|    Active       |
+	 * +----+----+-----------------+
+	 * | 1  | 0  |    Light        |
+	 * +----+----+-----------------+
+	 * | 1  | 1  |    Deep         |
+	 * +----+----+-----------------+
+	 */
+	if (!ieee80211_has_morefrags(hdr->frame_control) &&
+	    !(status->rx_flags & IEEE80211_RX_DEFERRED_RELEASE) &&
+	    ieee80211_vif_is_mesh(&rx->sdata->vif) &&
+	    ieee80211_is_data_qos(hdr->frame_control)) {
+		if (ieee80211_has_pm(hdr->frame_control)) {
+			__le16 *qc = (__le16 *) ieee80211_get_qos_ctl(hdr);
+			if (ieee80211s_has_qos_pm(*qc))
+				ieee80211s_set_sta_ps_mode(sta,
+					NL80211_MESH_POWER_DEEP_SLEEP);
+			else
+				ieee80211s_set_sta_ps_mode(sta,
+					NL80211_MESH_POWER_LIGHT_SLEEP);
+		} else {
+			ieee80211s_set_sta_ps_mode(sta,
+				NL80211_MESH_POWER_ACTIVE);
 		}
 	}
 

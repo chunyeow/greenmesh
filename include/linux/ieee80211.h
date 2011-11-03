@@ -556,6 +556,16 @@ static inline int ieee80211_is_first_frag(__le16 seq_ctrl)
 	return (seq_ctrl & cpu_to_le16(IEEE80211_SCTL_FRAG)) == 0;
 }
 
+/**
+ * ieee80211s_has_qos_pm - check Power Save Level in QoS control
+ * @qc - QoS control bytes in little-endian byteorder
+ */
+
+static inline int ieee80211s_has_qos_pm(__le16 qc)
+{
+	return qc & cpu_to_le16(IEEE80211_QOS_CTL_MESH_PS_LEVEL);
+}
+
 struct ieee80211s_hdr {
 	u8 flags;
 	u8 ttl;
