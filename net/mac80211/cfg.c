@@ -400,11 +400,15 @@ static void sta_set_sinfo(struct sta_info *sta, struct station_info *sinfo)
 #ifdef CONFIG_MAC80211_MESH
 		sinfo->filled |= STATION_INFO_LLID |
 				 STATION_INFO_PLID |
-				 STATION_INFO_PLINK_STATE;
+				 STATION_INFO_PLINK_STATE |
+				 STATION_INFO_LOCAL_MESH_PS_MODE |
+				 STATION_INFO_PEER_MESH_PS_MODE;
 
 		sinfo->llid = le16_to_cpu(sta->llid);
 		sinfo->plid = le16_to_cpu(sta->plid);
 		sinfo->plink_state = sta->plink_state;
+		sinfo->local_ps_mode = sta->local_ps_mode;
+		sinfo->peer_ps_mode = sta->peer_ps_mode;
 #endif
 	}
 

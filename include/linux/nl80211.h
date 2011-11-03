@@ -1659,6 +1659,10 @@ enum nl80211_sta_bss_param {
  * @NL80211_STA_INFO_CONNECTED_TIME: time since the station is last connected
  * @NL80211_STA_INFO_STA_FLAGS: Contains a struct nl80211_sta_flag_update.
  * @NL80211_STA_INFO_BEACON_LOSS: count of times beacon loss was detected (u32)
+ * @NL80211_STA_INFO_LOCAL_MESH_PS_MODE: local mesh STA link-specific power
+ * 	save mode
+ * @NL80211_STA_INFO_PEER_MESH_PS_MODE: peer mesh STA link-specific power
+ * 	save mode
  * @__NL80211_STA_INFO_AFTER_LAST: internal
  * @NL80211_STA_INFO_MAX: highest possible station info attribute
  */
@@ -1682,6 +1686,8 @@ enum nl80211_sta_info {
 	NL80211_STA_INFO_CONNECTED_TIME,
 	NL80211_STA_INFO_STA_FLAGS,
 	NL80211_STA_INFO_BEACON_LOSS,
+	NL80211_STA_INFO_LOCAL_MESH_PS_MODE,
+	NL80211_STA_INFO_PEER_MESH_PS_MODE,
 
 	/* keep last */
 	__NL80211_STA_INFO_AFTER_LAST,
