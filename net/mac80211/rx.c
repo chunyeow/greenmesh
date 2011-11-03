@@ -1981,6 +1981,9 @@ ieee80211_rx_h_mesh_fwding(struct ieee80211_rx_data *rx)
 		return RX_DROP_MONITOR;
 	}
 
+	/* mesh power mode is link-specific -> update when forwarding */
+	ieee80211_set_mesh_ps_fields(sdata, fwd_hdr);
+
 	IEEE80211_IFSTA_MESH_CTR_INC(ifmsh, fwded_frames);
 	ieee80211_add_pending_skb(local, fwd_skb);
  out:

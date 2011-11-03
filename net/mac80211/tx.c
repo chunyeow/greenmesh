@@ -1498,6 +1498,8 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata, struct sk_buff *skb)
 	}
 
 	ieee80211_set_qos_hdr(sdata, skb);
+	if (ieee80211_vif_is_mesh(&sdata->vif))
+		ieee80211_set_mesh_ps_fields(sdata, hdr);
 	ieee80211_tx(sdata, skb, false);
 	rcu_read_unlock();
 }

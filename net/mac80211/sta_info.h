@@ -267,6 +267,7 @@ struct sta_ampdu_mlme {
  * @plink_retries: Retries in establishment
  * @ignore_plink_timer: ignore the peer-link timer (used internally)
  * @plink_state: peer link state
+ * @local_ps_mode: local link-specific power save mode
  * @plink_timeout: timeout of peer link
  * @plink_timer: peer link watch timer
  * @plink_timer_was_running: used by suspend/resume to restore timers
@@ -358,6 +359,7 @@ struct sta_info {
 	bool ignore_plink_timer;
 	bool plink_timer_was_running;
 	enum nl80211_plink_state plink_state;
+	enum nl80211_mesh_power_mode local_ps_mode;
 	u32 plink_timeout;
 	struct timer_list plink_timer;
 	s64 t_offset;
