@@ -2186,6 +2186,7 @@ enum nl80211_mesh_power_mode {
  * @NL80211_MESHCONF_RSSI_THRESHOLD: RSSI threshold in dBm. This specifies the
  * threshold for average signal strength of candidate station to establish
  * a peer link.
+ * @NL80211_MESHCONF_POWER_MODE: mesh non-peer power mode
  *
  * @NL80211_MESHCONF_ATTR_MAX: highest possible mesh configuration attribute
  *
@@ -2217,6 +2218,7 @@ enum nl80211_meshconf_params {
 	NL80211_MESHCONF_FORWARDING,
 	NL80211_MESHCONF_RSSI_THRESHOLD,
 	NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR,
+	NL80211_MESHCONF_POWER_MODE,
 
 	/* keep last */
 	__NL80211_MESHCONF_ATTR_AFTER_LAST,
