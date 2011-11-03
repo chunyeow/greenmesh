@@ -274,12 +274,13 @@ static int mesh_plink_frame_tx(struct ieee80211_sub_if_data *sdata,
 	return 0;
 }
 
-void mesh_neighbour_update(u8 *hw_addr, u32 rates,
+void mesh_neighbour_update(struct ieee80211_mgmt *mgmt, u32 rates,
 		struct ieee80211_sub_if_data *sdata,
 		struct ieee802_11_elems *elems)
 {
 	struct ieee80211_local *local = sdata->local;
 	struct sta_info *sta;
+	u8 *hw_addr = mgmt->sa;
 
 	rcu_read_lock();
 
@@ -308,8 +309,25 @@ void mesh_neighbour_update(u8 *hw_addr, u32 rates,
 			sta->plink_state == NL80211_PLINK_LISTEN &&
 			sdata->u.mesh.accepting_plinks &&
 			sdata->u.mesh.mshcfg.auto_open_plinks &&
-			rssi_threshold_check(sta, sdata))
+			rssi_threshold_check(sta, sdata)) {
+		if (ieee80211_has_pm(mgmt->frame_control)) {
+			__le16 capab_info = mgmt->u.probe_resp.capab_info;
+			if (ieee80211s_has_capab_pm(capab_info))
+				ieee80211s_set_sta_ps_mode(sta,
+					NL80211_MESH_POWER_DEEP_SLEEP);
+			else
+				ieee80211s_set_sta_ps_mode(sta,
+					NL80211_MESH_POWER_LIGHT_SLEEP);
+		} else {
+			ieee80211s_set_sta_ps_mode(sta,
+				NL80211_MESH_POWER_ACTIVE);
+		}
+
+		ieee80211s_set_local_ps_mode(sta,
+			sdata->u.mesh.mshcfg.power_mode);
+
 		mesh_plink_open(sta);
+	}
 
 	rcu_read_unlock();
 }

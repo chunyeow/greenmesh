@@ -257,6 +257,8 @@ void ieee80211_set_mesh_ps_fields(struct ieee80211_sub_if_data *sdata,
 		struct ieee80211_hdr *hdr);
 void ieee80211s_set_sta_ps_mode(struct sta_info *sta,
 		enum nl80211_mesh_power_mode mode);
+void ieee80211s_set_local_ps_mode(struct sta_info *sta,
+		enum nl80211_mesh_power_mode pm);
 
 /* Mesh paths */
 int mesh_nexthop_lookup(struct sk_buff *skb,
@@ -281,7 +283,7 @@ int mesh_path_add_gate(struct mesh_path *mpath);
 int mesh_path_send_to_gates(struct mesh_path *mpath);
 int mesh_gate_num(struct ieee80211_sub_if_data *sdata);
 /* Mesh plinks */
-void mesh_neighbour_update(u8 *hw_addr, u32 rates,
+void mesh_neighbour_update(struct ieee80211_mgmt *mgmt, u32 rates,
 		struct ieee80211_sub_if_data *sdata,
 		struct ieee802_11_elems *ie);
 bool mesh_peer_accepts_plinks(struct ieee802_11_elems *ie);
@@ -342,6 +344,11 @@ static inline void mesh_path_activate(struct mesh_path *mpath)
 static inline bool mesh_path_sel_is_hwmp(struct ieee80211_sub_if_data *sdata)
 {
 	return sdata->u.mesh.mesh_pp_id == IEEE80211_PATH_PROTOCOL_HWMP;
+}
+
+static inline bool ieee80211s_has_capab_pm(__le16 capab_info)
+{
+	return (capab_info & MESHCONF_CAPAB_POWER_SAVE_LEVEL) != 0;
 }
 
 void ieee80211_mesh_notify_scan_completed(struct ieee80211_local *local);

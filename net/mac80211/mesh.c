@@ -500,6 +500,41 @@ void ieee80211_mesh_root_setup(struct ieee80211_if_mesh *ifmsh)
 	}
 }
 
+void ieee80211s_set_local_ps_mode(struct sta_info *sta,
+		enum nl80211_mesh_power_mode pm)
+{
+	switch (pm) {
+	case NL80211_MESH_POWER_ACTIVE:
+	case NL80211_MESH_POWER_LIGHT_SLEEP:
+	case NL80211_MESH_POWER_DEEP_SLEEP:
+		sta->local_ps_mode = pm;
+		break;
+	default:
+		break;
+	}
+
+#ifdef CONFIG_MAC80211_VERBOSE_PS_DEBUG
+	switch (pm) {
+	case NL80211_MESH_POWER_ACTIVE:
+		printk(KERN_DEBUG "%s: local STA operates in active mode with STA %pM\n",
+			sta->sdata->name, sta->sta.addr);
+		break;
+	case NL80211_MESH_POWER_LIGHT_SLEEP:
+		printk(KERN_DEBUG "%s: local STA operates in light sleep mode with STA %pM\n",
+				sta->sdata->name, sta->sta.addr);
+		break;
+	case NL80211_MESH_POWER_DEEP_SLEEP:
+		printk(KERN_DEBUG "%s: local STA operates in deep sleep mode with STA %pM\n",
+				sta->sdata->name, sta->sta.addr);
+		break;
+	default:
+		printk(KERN_DEBUG "%s: local STA used invalid power mode to operate with STA %pM\n",
+				sta->sdata->name, sta->sta.addr);
+		break;
+	}
+#endif /* CONFIG_MAC80211_VERBOSE_PS_DEBUG */
+}
+
 /**
  * ieee80211_fill_mesh_addresses - fill addresses of a locally originated mesh frame
  * @hdr:    	802.11 frame header
@@ -726,7 +761,7 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 
 	if (elems.mesh_id && elems.mesh_config &&
 	    mesh_matches_local(&elems, sdata, basic_rates))
-		mesh_neighbour_update(mgmt->sa, supp_rates, sdata, &elems);
+		mesh_neighbour_update(mgmt, supp_rates, sdata, &elems);
 
 	if (ifmsh->sync_ops)
 		ifmsh->sync_ops->rx_bcn_presp(sdata,
