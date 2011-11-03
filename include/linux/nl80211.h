@@ -2076,6 +2076,35 @@ enum nl80211_mntr_flags {
 };
 
 /**
+ * enum nl80211_mesh_power_mode - mesh power save modes
+ *
+ * @__NL80211_MESH_POWER_INVALID - internal use
+ *
+ * @NL80211_MESH_POWER_ACTIVE - active mesh power mode, mesh STA
+ *                            in Awake state all the time
+ * @NL80211_MESH_POWER_LIGHT_SLEEP - light sleep mode, mesh STA
+ *                            alternate between Active and Doze states,
+ *                            mesh STA should listen to all the beacons
+ * @NL80211_MESH_POWER_DEEP_SLEEP - deep sleep mode, mesh STA
+ *                            alternates between Active and Doze states,
+ *                            may choose not listen to the beacons
+ *
+ * @__NL80211_MESH_POWER_AFTER_LAST - internal use
+ * @NL80211_MESH_POWER_MAX - highest possible power save level
+ */
+
+enum nl80211_mesh_power_mode {
+	__NL80211_MESH_POWER_INVALID,
+
+	NL80211_MESH_POWER_ACTIVE,
+	NL80211_MESH_POWER_LIGHT_SLEEP,
+	NL80211_MESH_POWER_DEEP_SLEEP,
+
+	__NL80211_MESH_POWER_AFTER_LAST,
+	NL80211_MESH_POWER_MAX = __NL80211_MESH_POWER_AFTER_LAST - 1
+};
+
+/**
  * enum nl80211_meshconf_params - mesh configuration parameters
  *
  * Mesh configuration parameters. These can be changed while the mesh is

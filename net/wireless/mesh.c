@@ -61,6 +61,7 @@ const struct mesh_config default_mesh_config = {
 	.dot11MeshGateAnnouncementProtocol = false,
 	.dot11MeshForwarding = true,
 	.rssi_threshold = MESH_RSSI_THRESHOLD,
+	.power_mode = NL80211_MESH_POWER_ACTIVE,
 };
 
 const struct mesh_setup default_mesh_setup = {
