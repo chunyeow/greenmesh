@@ -191,6 +191,9 @@ struct mesh_rmc {
 /* Maximum number of paths per interface */
 #define MESH_MAX_MPATHS		1024
 
+/* capability power save flag mask */
+#define MESHCONF_CAPAB_POWER_SAVE_LEVEL	0x80
+
 /* Public interfaces */
 /* Various */
 int ieee80211_fill_mesh_addresses(struct ieee80211_hdr *hdr, __le16 *fc,

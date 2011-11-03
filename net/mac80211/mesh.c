@@ -251,6 +251,8 @@ mesh_add_meshconf_ie(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata)
 	/* Mesh capability */
 	ifmsh->accepting_plinks = mesh_plink_availables(sdata);
 	*pos = MESHCONF_CAPAB_FORWARDING;
+	if (sdata->u.mesh.mshcfg.power_mode == NL80211_MESH_POWER_DEEP_SLEEP)
+		*pos |= MESHCONF_CAPAB_POWER_SAVE_LEVEL;
 	*pos++ |= ifmsh->accepting_plinks ?
 	    MESHCONF_CAPAB_ACCEPT_PLINKS : 0x00;
 	*pos++ = 0x00;
