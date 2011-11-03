@@ -2622,6 +2622,10 @@ static int nl80211_set_station(struct sk_buff *skb, struct genl_info *info)
 		params.plink_state =
 		    nla_get_u8(info->attrs[NL80211_ATTR_STA_PLINK_STATE]);
 
+	if (info->attrs[NL80211_ATTR_LOCAL_MESH_POWER_MODE])
+		params.local_ps_mode =
+			nla_get_u8(info->attrs[NL80211_ATTR_LOCAL_MESH_POWER_MODE]);
+
 	switch (dev->ieee80211_ptr->iftype) {
 	case NL80211_IFTYPE_AP:
 	case NL80211_IFTYPE_AP_VLAN:
@@ -2629,6 +2633,8 @@ static int nl80211_set_station(struct sk_buff *skb, struct genl_info *info)
 		/* disallow mesh-specific things */
 		if (params.plink_action)
 			return -EINVAL;
+		if (params.local_ps_mode)
+			err = -EINVAL;
 
 		/* TDLS can't be set, ... */
 		if (params.sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER))
@@ -2658,6 +2664,8 @@ static int nl80211_set_station(struct sk_buff *skb, struct genl_info *info)
 		/* disallow things sta doesn't support */
 		if (params.plink_action)
 			return -EINVAL;
+		if (params.local_ps_mode)
+			err = -EINVAL;
 		if (params.ht_capa)
 			return -EINVAL;
 		if (params.listen_interval >= 0)
