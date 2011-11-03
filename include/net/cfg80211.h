@@ -524,6 +524,8 @@ struct station_parameters {
  * @STATION_INFO_STA_FLAGS: @sta_flags filled
  * @STATION_INFO_BEACON_LOSS_COUNT: @beacon_loss_count filled
  * @STATION_INFO_T_OFFSET: @t_offset filled
+ * @STATION_INFO_LOCAL_MESH_PS_MODE: @local_ps_mode filled
+ * @STATION_INFO_PEER_MESH_PS_MODE: @peer_ps_mode filled
  */
 enum station_info_flags {
 	STATION_INFO_INACTIVE_TIME	= 1<<0,
@@ -547,6 +549,8 @@ enum station_info_flags {
 	STATION_INFO_STA_FLAGS		= 1<<18,
 	STATION_INFO_BEACON_LOSS_COUNT	= 1<<19,
 	STATION_INFO_T_OFFSET		= 1<<20,
+	STATION_INFO_LOCAL_MESH_PS_MODE = 1<<21,
+	STATION_INFO_PEER_MESH_PS_MODE  = 1<<22,
 };
 
 /**
@@ -636,6 +640,8 @@ struct sta_bss_parameters {
  * @tx_failed: number of failed transmissions (retries exceeded, no ACK)
  * @rx_dropped_misc:  Dropped for un-specified reason.
  * @bss_param: current BSS parameters
+ * @local_ps_mode: local mesh STA power save mode
+ * @peer_ps_mode: peer mesh STA power save mode
  * @generation: generation number for nl80211 dumps.
  *	This number should increase every time the list of stations
  *	changes, i.e. when a station is added or removed, so that
@@ -669,6 +675,8 @@ struct station_info {
 	u32 rx_dropped_misc;
 	struct sta_bss_parameters bss_param;
 	struct nl80211_sta_flag_update sta_flags;
+	enum nl80211_mesh_power_mode local_ps_mode;
+	enum nl80211_mesh_power_mode peer_ps_mode;
 
 	int generation;
 

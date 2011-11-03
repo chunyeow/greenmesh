@@ -2472,6 +2472,12 @@ static int nl80211_send_station(struct sk_buff *msg, u32 pid, u32 seq,
 	if (sinfo->filled & STATION_INFO_BEACON_LOSS_COUNT)
 		NLA_PUT_U32(msg, NL80211_STA_INFO_BEACON_LOSS,
 			    sinfo->beacon_loss_count);
+	if (sinfo->filled & STATION_INFO_LOCAL_MESH_PS_MODE)
+		NLA_PUT_U8(msg, NL80211_STA_INFO_LOCAL_MESH_PS_MODE,
+			sinfo->local_ps_mode);
+	if (sinfo->filled & STATION_INFO_PEER_MESH_PS_MODE)
+		NLA_PUT_U8(msg, NL80211_STA_INFO_PEER_MESH_PS_MODE,
+			sinfo->peer_ps_mode);
 	if (sinfo->filled & STATION_INFO_BSS_PARAM) {
 		bss_param = nla_nest_start(msg, NL80211_STA_INFO_BSS_PARAM);
 		if (!bss_param)
