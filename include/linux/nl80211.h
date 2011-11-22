@@ -2188,6 +2188,8 @@ enum nl80211_mesh_power_mode {
  * a peer link.
  * @NL80211_MESHCONF_POWER_MODE: mesh non-peer power mode
  *
+ * @NL80211_MESHCONF_AWAKE_WINDOW: mesh local awake window
+ *
  * @NL80211_MESHCONF_ATTR_MAX: highest possible mesh configuration attribute
  *
  * @NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR: maximum number of neighbors
@@ -2219,6 +2221,7 @@ enum nl80211_meshconf_params {
 	NL80211_MESHCONF_RSSI_THRESHOLD,
 	NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR,
 	NL80211_MESHCONF_POWER_MODE,
+	NL80211_MESHCONF_AWAKE_WINDOW,
 
 	/* keep last */
 	__NL80211_MESHCONF_ATTR_AFTER_LAST,
