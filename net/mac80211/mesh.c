@@ -711,6 +711,16 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 		supp_rates = ieee80211_sta_get_rates(local, &elems, band);
 		mesh_neighbour_update(mgmt->sa, supp_rates, sdata, &elems);
 	}
+
+	if (elems.awake_window) {
+		__le16 tmp;
+		u16 awake_window;
+
+		memcpy(&tmp, elems.awake_window, 2);
+		awake_window = le16_to_cpu(tmp);
+
+		/* TODO check if frames buffered */
+	}
 }
 
 static void ieee80211_mesh_rx_mgmt_action(struct ieee80211_sub_if_data *sdata,
