@@ -790,6 +790,7 @@ struct mesh_config {
 	u8  dot11MeshTTL;
 	/* non-peer mesh power save mode */
 	u8 power_mode;
+	u32 dot11MeshAwakeWindowDuration;
 	/* ttl used in path selection information elements */
 	u8  element_ttl;
 	bool auto_open_plinks;

@@ -3275,6 +3275,8 @@ static int nl80211_get_mesh_config(struct sk_buff *skb,
 			cur_params.dot11MeshGateAnnouncementProtocol);
 	NLA_PUT_U8(msg, NL80211_MESHCONF_POWER_MODE,
 			cur_params.power_mode);
+	NLA_PUT_U32(msg, NL80211_MESHCONF_AWAKE_WINDOW,
+			cur_params.dot11MeshAwakeWindowDuration);
 	nla_nest_end(msg, pinfoattr);
 	genlmsg_end(msg, hdr);
 	return genlmsg_reply(msg, info);
@@ -3308,6 +3310,7 @@ static const struct nla_policy nl80211_meshconf_params_policy[NL80211_MESHCONF_A
 	[NL80211_MESHCONF_GATE_ANNOUNCEMENTS] = { .type = NLA_U8 },
 
 	[NL80211_MESHCONF_POWER_MODE] = { .type = NLA_U8 },
+	[NL80211_MESHCONF_AWAKE_WINDOW] = { .type = NLA_U32 },
 };
 
 static const struct nla_policy
@@ -3401,6 +3404,10 @@ do {\
 			power_mode, mask,
 			NL80211_MESHCONF_POWER_MODE,
 			nla_get_u8);
+	FILL_IN_MESH_PARAM_IF_SET(tb, cfg,
+			dot11MeshAwakeWindowDuration, mask,
+			NL80211_MESHCONF_AWAKE_WINDOW,
+			nla_get_u32);
 	if (mask_out)
 		*mask_out = mask;
 

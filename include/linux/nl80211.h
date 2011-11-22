@@ -2144,6 +2144,8 @@ enum nl80211_mesh_power_mode {
  *
  * @NL80211_MESHCONF_POWER_MODE: mesh non-peer power mode
  *
+ * @NL80211_MESHCONF_AWAKE_WINDOW: mesh local awake window
+ *
  * @NL80211_MESHCONF_ATTR_MAX: highest possible mesh configuration attribute
  *
  * @__NL80211_MESHCONF_ATTR_AFTER_LAST: internal use
@@ -2169,6 +2171,7 @@ enum nl80211_meshconf_params {
 	NL80211_MESHCONF_GATE_ANNOUNCEMENTS,
 	NL80211_MESHCONF_HWMP_PERR_MIN_INTERVAL,
 	NL80211_MESHCONF_POWER_MODE,
+	NL80211_MESHCONF_AWAKE_WINDOW,
 
 	/* keep last */
 	__NL80211_MESHCONF_ATTR_AFTER_LAST,
