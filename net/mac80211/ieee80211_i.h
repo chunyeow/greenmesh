@@ -1142,6 +1142,7 @@ struct ieee802_11_elems {
 	struct ieee80211_meshconf_ie *mesh_config;
 	u8 *mesh_id;
 	u8 *peering;
+	u8 *awake_window;
 	u8 *preq;
 	u8 *prep;
 	u8 *perr;

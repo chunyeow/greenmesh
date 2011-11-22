@@ -785,6 +785,16 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	    mesh_matches_local(&elems, sdata, basic_rates))
 		mesh_neighbour_update(mgmt, supp_rates, sdata, &elems);
 
+	if (elems.awake_window) {
+		__le16 tmp;
+		u16 awake_window;
+
+		memcpy(&tmp, elems.awake_window, 2);
+		awake_window = le16_to_cpu(tmp);
+
+		/* TODO check if frames buffered */
+	}
+
 	if (ifmsh->sync_ops)
 		ifmsh->sync_ops->rx_bcn_presp(sdata,
 			stype, mgmt, &elems, rx_status);
