@@ -268,14 +268,13 @@ static int mesh_plink_frame_tx(struct ieee80211_sub_if_data *sdata,
 	return 0;
 }
 
-void mesh_neighbour_update(u8 *hw_addr, u32 rates,
+void mesh_neighbour_update(struct ieee80211_mgmt *mgmt, u32 rates,
 		struct ieee80211_sub_if_data *sdata,
 		struct ieee802_11_elems *elems)
 {
 	struct ieee80211_local *local = sdata->local;
 	struct sta_info *sta;
-	struct ieee80211_mgmt *mgmt = container_of(hw_addr,
-					struct ieee80211_mgmt, sa[0]);
+	u8 *hw_addr = mgmt->sa;
 
 	rcu_read_lock();
 

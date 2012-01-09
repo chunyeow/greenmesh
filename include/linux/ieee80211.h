@@ -563,8 +563,7 @@ static inline int ieee80211_is_first_frag(__le16 seq_ctrl)
 
 static inline int ieee80211s_has_qos_pm(__le16 qc)
 {
-	return (qc & cpu_to_le16(
-			IEEE80211_QOS_CTL_MESH_PS_LEVEL)) != 0;
+	return qc & cpu_to_le16(IEEE80211_QOS_CTL_MESH_PS_LEVEL);
 }
 
 struct ieee80211s_hdr {

@@ -789,7 +789,7 @@ struct mesh_config {
 	u8  dot11MeshMaxRetries;
 	u8  dot11MeshTTL;
 	/* non-peer mesh power save mode */
-	u8 power_mode;
+	enum nl80211_mesh_power_mode power_mode;
 	u32 dot11MeshAwakeWindowDuration;
 	/* ttl used in path selection information elements */
 	u8  element_ttl;
