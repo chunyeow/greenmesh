@@ -478,7 +478,7 @@ struct station_parameters {
 	struct ieee80211_ht_cap *ht_capa;
 	u8 uapsd_queues;
 	u8 max_sp;
-	u8 local_ps_mode;
+	enum nl80211_mesh_power_mode local_ps_mode;
 };
 
 /**
@@ -655,8 +655,8 @@ struct station_info {
 	u32 rx_dropped_misc;
 	struct sta_bss_parameters bss_param;
 	struct nl80211_sta_flag_update sta_flags;
-	u8 local_ps_mode;
-	u8 peer_ps_mode;
+	enum nl80211_mesh_power_mode local_ps_mode;
+	enum nl80211_mesh_power_mode peer_ps_mode;
 
 	int generation;
 
