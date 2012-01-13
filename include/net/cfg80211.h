@@ -781,6 +781,8 @@ struct mesh_config {
 	/* ttl used in path selection information elements */
 	u8  element_ttl;
 	bool auto_open_plinks;
+	/* neighbor offset synchronization */
+	u32 dot11MeshNbrOffsetMaxNeighbor;
 	/* HWMP parameters */
 	u8  dot11MeshHWMPmaxPREQretries;
 	u32 path_refresh_time;
@@ -802,6 +804,7 @@ struct mesh_config {
  * struct mesh_setup - 802.11s mesh setup configuration
  * @mesh_id: the mesh ID
  * @mesh_id_len: length of the mesh ID, at least 1 and at most 32 bytes
+ * @sync_method: which synchronization method to use
  * @path_sel_proto: which path selection protocol to use
  * @path_metric: which metric to use
  * @ie: vendor information elements (optional)
@@ -815,6 +818,7 @@ struct mesh_config {
 struct mesh_setup {
 	const u8 *mesh_id;
 	u8 mesh_id_len;
+	u8 sync_method;
 	u8 path_sel_proto;
 	u8 path_metric;
 	const u8 *ie;

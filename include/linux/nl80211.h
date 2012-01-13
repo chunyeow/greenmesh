@@ -2067,6 +2067,9 @@ enum nl80211_mntr_flags {
  * @NL80211_MESHCONF_AUTO_OPEN_PLINKS: whether we should automatically
  * open peer links when we detect compatible mesh peers.
  *
+ * @NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR: maximum number of neighbors
+ * to synchronize to for 11s default synchronization method (see 11C.12.2.2)
+ *
  * @NL80211_MESHCONF_HWMP_MAX_PREQ_RETRIES: the number of action frames
  * containing a PREQ that an MP can send to a particular destination (path
  * target)
@@ -2117,6 +2120,7 @@ enum nl80211_meshconf_params {
 	NL80211_MESHCONF_MAX_RETRIES,
 	NL80211_MESHCONF_TTL,
 	NL80211_MESHCONF_AUTO_OPEN_PLINKS,
+	NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR,
 	NL80211_MESHCONF_HWMP_MAX_PREQ_RETRIES,
 	NL80211_MESHCONF_PATH_REFRESH_TIME,
 	NL80211_MESHCONF_MIN_DISCOVERY_TIMEOUT,
@@ -2141,6 +2145,10 @@ enum nl80211_meshconf_params {
  * changed while the mesh is active.
  *
  * @__NL80211_MESH_SETUP_INVALID: Internal use
+ *
+ * @NL80211_MESH_SETUP_ENABLE_VENDOR_SYNC: Enable this option to use a
+ * vendor specific synchronization method or disable it to use the default
+ * neighbor offset synchronization
  *
  * @NL80211_MESH_SETUP_ENABLE_VENDOR_PATH_SEL: Enable this option to use a
  * vendor specific path selection algorithm or disable it to use the default
@@ -2171,6 +2179,7 @@ enum nl80211_meshconf_params {
  */
 enum nl80211_mesh_setup_params {
 	__NL80211_MESH_SETUP_INVALID,
+	NL80211_MESH_SETUP_ENABLE_VENDOR_SYNC,
 	NL80211_MESH_SETUP_ENABLE_VENDOR_PATH_SEL,
 	NL80211_MESH_SETUP_ENABLE_VENDOR_METRIC,
 	NL80211_MESH_SETUP_IE,
