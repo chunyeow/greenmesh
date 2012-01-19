@@ -358,6 +358,8 @@ struct sta_info {
 	enum nl80211_plink_state plink_state;
 	u32 plink_timeout;
 	struct timer_list plink_timer;
+	s64 sync_offset;
+	bool sync_offset_valid;
 #endif
 
 #ifdef CONFIG_MAC80211_DEBUGFS
