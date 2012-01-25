@@ -1353,12 +1353,12 @@ static int ieee80211_update_mesh_config(struct wiphy *wiphy,
 	if (_chg_mesh_attr(NL80211_MESHCONF_POWER_MODE, mask)) {
 		conf->power_mode = nconf->power_mode;
 		ieee80211_bss_info_change_notify(sdata,
-						BSS_CHANGED_BEACON);
+			BSS_CHANGED_BEACON);
 	}
 	if (_chg_mesh_attr(NL80211_MESHCONF_AWAKE_WINDOW, mask)) {
 		conf->dot11MeshAwakeWindowDuration = nconf->dot11MeshAwakeWindowDuration;
 		ieee80211_bss_info_change_notify(sdata,
-		BSS_CHANGED_BEACON);
+			BSS_CHANGED_BEACON);
 	}
 	return 0;
 }

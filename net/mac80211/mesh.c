@@ -283,7 +283,7 @@ mesh_add_awake_window_ie(struct sk_buff *skb, struct ieee80211_sub_if_data *sdat
 {
 	struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
 	u8 *pos;
-	__le32 awake_window  = cpu_to_le32(ifmsh->mshcfg.dot11MeshAwakeWindowDuration);
+	__le32 awake_window = cpu_to_le32(ifmsh->mshcfg.dot11MeshAwakeWindowDuration);
 
 	if (ifmsh->mshcfg.power_mode == NL80211_MESH_POWER_ACTIVE)
 		return 0;

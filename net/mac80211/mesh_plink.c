@@ -305,13 +305,12 @@ void mesh_neighbour_update(struct ieee80211_mgmt *mgmt, u32 rates,
 			sdata->u.mesh.mshcfg.auto_open_plinks) {
 		if (ieee80211_has_pm(mgmt->frame_control)) {
 			__le16 capab_info = mgmt->u.probe_resp.capab_info;
-			if (ieee80211s_has_capab_pm(capab_info)) {
+			if (ieee80211s_has_capab_pm(capab_info))
 				ieee80211s_set_sta_ps_mode(sta,
 					NL80211_MESH_POWER_DEEP_SLEEP);
-			} else {
+			else
 				ieee80211s_set_sta_ps_mode(sta,
 					NL80211_MESH_POWER_LIGHT_SLEEP);
-			}
 		} else {
 			ieee80211s_set_sta_ps_mode(sta,
 				NL80211_MESH_POWER_ACTIVE);
