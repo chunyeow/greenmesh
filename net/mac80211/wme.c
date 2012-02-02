@@ -165,7 +165,8 @@ ieee80211s_get_ps_mode(struct ieee80211_sub_if_data *sdata, u8 *ra)
 	enum nl80211_mesh_power_mode pm = NL80211_MESH_POWER_ACTIVE;
 	struct sta_info *sta;
 
-	if (is_multicast_ether_addr(ra)) {
+	if (is_multicast_ether_addr(ra) ||
+	    is_zero_ether_addr(ra)) { /* TODO to whom will these be addressed? */
 		pm = sdata->u.mesh.mshcfg.power_mode;
 	} else {
 		rcu_read_lock();
