@@ -3297,6 +3297,7 @@ static const struct nla_policy nl80211_meshconf_params_policy[NL80211_MESHCONF_A
 
 static const struct nla_policy
 	nl80211_mesh_setup_params_policy[NL80211_MESH_SETUP_ATTR_MAX+1] = {
+	[NL80211_MESH_SETUP_ENABLE_VENDOR_SYNC] = { .type = NLA_U8 },
 	[NL80211_MESH_SETUP_ENABLE_VENDOR_PATH_SEL] = { .type = NLA_U8 },
 	[NL80211_MESH_SETUP_ENABLE_VENDOR_METRIC] = { .type = NLA_U8 },
 	[NL80211_MESH_SETUP_USERSPACE_AUTH] = { .type = NLA_FLAG },
@@ -3407,8 +3408,8 @@ static int nl80211_parse_mesh_setup(struct genl_info *info,
 	if (tb[NL80211_MESH_SETUP_ENABLE_VENDOR_SYNC])
 		setup->sync_method =
 		(nla_get_u8(tb[NL80211_MESH_SETUP_ENABLE_VENDOR_SYNC])) ?
-		 IEEE80211_SYNC_METHOD_NEIGHBOR_OFFSET :
-		 IEEE80211_SYNC_METHOD_VENDOR;
+		 IEEE80211_SYNC_METHOD_VENDOR :
+		 IEEE80211_SYNC_METHOD_NEIGHBOR_OFFSET;
 
 	if (tb[NL80211_MESH_SETUP_ENABLE_VENDOR_PATH_SEL])
 		setup->path_sel_proto =
