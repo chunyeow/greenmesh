@@ -36,6 +36,8 @@
 
 #define MESH_MAX_PREQ_RETRIES	4
 
+#define MESH_DEFAULT_AWAKE_WINDOW	10	/* given in Table Y-1 */
+
 
 const struct mesh_config default_mesh_config = {
 	.dot11MeshRetryTimeout = MESH_RET_T,
@@ -56,8 +58,7 @@ const struct mesh_config default_mesh_config = {
 	.dot11MeshHWMPRannInterval = MESH_RANN_INTERVAL,
 	.dot11MeshGateAnnouncementProtocol = false,
 	.power_mode = NL80211_MESH_POWER_ACTIVE,
-	/* TODO useful value */
-	.dot11MeshAwakeWindowDuration = 0,
+	.dot11MeshAwakeWindowDuration = MESH_DEFAULT_AWAKE_WINDOW,
 };
 
 const struct mesh_setup default_mesh_setup = {
