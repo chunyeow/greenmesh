@@ -159,46 +159,6 @@ u16 ieee80211_downgrade_queue(struct ieee80211_local *local,
 	return ieee802_1d_to_ac[skb->priority];
 }
 
-static enum nl80211_mesh_power_mode
-ieee80211s_get_ps_mode(struct ieee80211_sub_if_data *sdata, u8 *ra)
-{
-	enum nl80211_mesh_power_mode pm = NL80211_MESH_POWER_ACTIVE;
-	struct sta_info *sta;
-
-	if (is_multicast_ether_addr(ra) ||
-	    is_zero_ether_addr(ra)) { /* TODO to whom will these be addressed? */
-		pm = sdata->u.mesh.mshcfg.power_mode;
-	} else {
-		rcu_read_lock();
-		sta = sta_info_get(sdata, ra);
-		if (sta)
-			pm = sta->local_ps_mode;
-		rcu_read_unlock();
-	}
-
-	return pm;
-}
-
-static void ieee80211_set_mesh_ps_fields(struct ieee80211_sub_if_data *sdata,
-					 struct ieee80211_hdr *hdr)
-{
-	enum nl80211_mesh_power_mode pm;
-	__le16 *qc;
-
-	/* power mode is peer-specific */
-	pm = ieee80211s_get_ps_mode(sdata, hdr->addr1);
-
-	if (pm == NL80211_MESH_POWER_ACTIVE)
-		return;
-
-	hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
-
-	if (pm == NL80211_MESH_POWER_DEEP_SLEEP) {
-		qc = (__le16 *) ieee80211_get_qos_ctl(hdr);
-		*qc |= cpu_to_le16(IEEE80211_QOS_CTL_MESH_PS_LEVEL);
-	}
-}
-
 void ieee80211_set_qos_hdr(struct ieee80211_sub_if_data *sdata,
 			   struct sk_buff *skb)
 {
@@ -223,12 +183,7 @@ void ieee80211_set_qos_hdr(struct ieee80211_sub_if_data *sdata,
 
 		/* qos header is 2 bytes */
 		*p++ = ack_policy | tid;
-
-		if (ieee80211_vif_is_mesh(&sdata->vif)) {
-			*p = (IEEE80211_QOS_CTL_MESH_CONTROL_PRESENT >> 8);
-			ieee80211_set_mesh_ps_fields(sdata, hdr);
-		} else {
-			*p = 0;
-		}
+		*p = ieee80211_vif_is_mesh(&sdata->vif) ?
+			(IEEE80211_QOS_CTL_MESH_CONTROL_PRESENT >> 8) : 0;
 	}
 }

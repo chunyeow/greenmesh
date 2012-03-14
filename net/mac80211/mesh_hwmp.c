@@ -210,6 +210,7 @@ static void prepare_frame_for_deferred_tx(struct ieee80211_sub_if_data *sdata,
 		struct sk_buff *skb)
 {
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
 
 	skb_set_mac_header(skb, 0);
 	skb_set_network_header(skb, 0);
@@ -221,6 +222,7 @@ static void prepare_frame_for_deferred_tx(struct ieee80211_sub_if_data *sdata,
 
 	info->control.vif = &sdata->vif;
 	ieee80211_set_qos_hdr(sdata, skb);
+	ieee80211_set_mesh_ps_fields(sdata, hdr);
 }
 
 /**
@@ -1026,6 +1028,7 @@ int mesh_nexthop_resolve(struct sk_buff *skb,
 
 	info->flags |= IEEE80211_TX_INTFL_NEED_TXPROCESSING;
 	ieee80211_set_qos_hdr(sdata, skb);
+	ieee80211_set_mesh_ps_fields(sdata, hdr);
 	skb_queue_tail(&mpath->frame_queue, skb);
 	err = -ENOENT;
 	if (skb_to_free)

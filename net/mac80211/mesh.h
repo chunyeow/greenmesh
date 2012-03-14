@@ -238,6 +238,8 @@ void ieee80211s_set_sta_ps_mode(struct sta_info *sta,
 				enum nl80211_mesh_power_mode mode);
 void ieee80211s_set_local_ps_mode(struct sta_info *sta, 
 		enum nl80211_mesh_power_mode pm);
+void ieee80211_set_mesh_ps_fields(struct ieee80211_sub_if_data *sdata,
+				  struct ieee80211_hdr *hdr);
 
 /* Mesh paths */
 int mesh_nexthop_lookup(struct sk_buff *skb,
