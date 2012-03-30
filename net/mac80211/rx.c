@@ -1191,6 +1191,10 @@ void ieee80211s_set_sta_ps_mode(struct sta_info *sta,
 {
 	if (sta->peer_ps_mode != mode) {
 		sta->peer_ps_mode = mode;
+
+		/* enable frame buffering for powersave STA */
+		ieee80211_sta_ps_transition_ni(&sta->sta, mode != NL80211_MESH_POWER_ACTIVE);
+
 #ifdef CONFIG_MAC80211_VERBOSE_PS_DEBUG
 		switch (mode) {
 		case NL80211_MESH_POWER_ACTIVE:
