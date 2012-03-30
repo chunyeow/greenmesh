@@ -335,9 +335,14 @@ static void purge_old_ps_buffers(struct ieee80211_local *local)
 
 	list_for_each_entry_rcu(sdata, &local->interfaces, list) {
 		struct ieee80211_if_ap *ap;
-		if (sdata->vif.type != NL80211_IFTYPE_AP)
+		if (sdata->vif.type == NL80211_IFTYPE_AP)
+			ap = &sdata->u.ap;
+		else if (sdata->vif.type == NL80211_IFTYPE_MESH_POINT &&
+			 sdata->bss)
+			ap = sdata->bss;
+		else
 			continue;
-		ap = &sdata->u.ap;
+
 		skb = skb_dequeue(&ap->ps_bc_buf);
 		if (skb) {
 			purged++;
@@ -403,7 +408,11 @@ ieee80211_tx_h_multicast_ps_buf(struct ieee80211_tx_data *tx)
 
 	/* device releases frame after DTIM beacon */
 	if (!(tx->local->hw.flags & IEEE80211_HW_HOST_BROADCAST_PS_BUFFERING))
+	{
+		printk(KERN_DEBUG "buffering multicast frame in hardware\n");
 		return TX_CONTINUE;
+	}
+	printk(KERN_DEBUG "buffering multicast frame in mac80211\n");
 
 	/* buffered in mac80211 */
 	if (tx->local->total_ps_buffered >= TOTAL_MAX_TX_BUFFER)
@@ -2648,17 +2657,24 @@ ieee80211_get_buffered_bc(struct ieee80211_hw *hw,
 	struct ieee80211_tx_info *info;
 
 	sdata = vif_to_sdata(vif);
-	bss = &sdata->u.ap;
+
+	if (ieee80211_vif_is_mesh(vif) && sdata->bss)
+		bss = sdata->bss;
+	else
+		bss = &sdata->u.ap;
 
 	rcu_read_lock();
 	beacon = rcu_dereference(bss->beacon);
 
-	if (sdata->vif.type != NL80211_IFTYPE_AP || !beacon || !beacon->head)
+	if ((sdata->vif.type != NL80211_IFTYPE_AP &&
+	     sdata->vif.type != NL80211_IFTYPE_MESH_POINT) ||
+	    !beacon || !beacon->head)
 		goto out;
 
 	if (bss->dtim_count != 0 || !bss->dtim_bc_mc)
 		goto out; /* send buffered bc/mc only after DTIM beacon */
 
+	printk(KERN_DEBUG "DTIM: draining ps_bc_buf, buf_len=%d\n", skb_queue_len(&bss->ps_bc_buf));
 	while (1) {
 		skb = skb_dequeue(&bss->ps_bc_buf);
 		if (!skb)
