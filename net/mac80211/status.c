@@ -380,8 +380,11 @@ void ieee80211_tx_status(struct ieee80211_hw *hw, struct sk_buff *skb)
 		if (memcmp(hdr->addr2, sta->sdata->vif.addr, ETH_ALEN))
 			continue;
 
-		if (info->flags & IEEE80211_TX_STATUS_EOSP)
+		if (info->flags & IEEE80211_TX_STATUS_EOSP) {
+			printk(KERN_DEBUG "clearing WLAN_STA_SP for %pM\n", hdr->addr2);
 			clear_sta_flag(sta, WLAN_STA_SP);
+			sta_info_recalc_tim(sta);
+		}
 
 		acked = !!(info->flags & IEEE80211_TX_STAT_ACK);
 		if (!acked && test_sta_flag(sta, WLAN_STA_PS_STA)) {

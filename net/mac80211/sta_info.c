@@ -1023,6 +1023,7 @@ void ieee80211_sta_ps_deliver_wakeup(struct sta_info *sta)
 	int filtered = 0, buffered = 0, ac;
 
 	clear_sta_flag(sta, WLAN_STA_SP);
+	printk(KERN_DEBUG "clearing WLAN_STA_SP for %pM\n", sta->sta.addr);
 
 	BUILD_BUG_ON(BITS_TO_LONGS(STA_TID_NUM) > 1);
 	sta->driver_buffered_tids = 0;
@@ -1285,7 +1286,14 @@ ieee80211_sta_ps_deliver_response(struct sta_info *sta,
 		/* This will evaluate to 1, 3, 5 or 7. */
 		tid = 7 - ((ffs(~ignored_acs) - 1) << 1);
 
-		ieee80211_send_null_response(sdata, sta, tid, reason);
+		if (ieee80211_vif_is_mesh(&sdata->vif)) {
+			printk(KERN_DEBUG "no data found for %pM\n",
+						       sta->sta.addr);
+			ieee80211_send_mesh_null_response(sdata, sta, tid, reason);
+		} else {
+			ieee80211_send_null_response(sdata, sta, tid, reason);
+		}
+
 		return;
 	}
 
@@ -1329,13 +1337,20 @@ ieee80211_sta_ps_deliver_response(struct sta_info *sta,
 			    ieee80211_is_qos_nullfunc(hdr->frame_control))
 				qoshdr = ieee80211_get_qos_ctl(hdr);
 
-			/* set EOSP for the frame */
-			if (reason == IEEE80211_FRAME_RELEASE_UAPSD &&
-			    qoshdr && skb_queue_empty(&frames))
-				*qoshdr |= IEEE80211_QOS_CTL_EOSP;
+			/* end service period after last frame */
+			if (skb_queue_empty(&frames)) {
+				if (reason == IEEE80211_FRAME_RELEASE_UAPSD &&
+				    qoshdr)
+					*qoshdr |= IEEE80211_QOS_CTL_EOSP;
 
-			info->flags |= IEEE80211_TX_STATUS_EOSP |
-				       IEEE80211_TX_CTL_REQ_TX_STATUS;
+				/* mark the (maybe) last frame to re-check PS queue */
+				if (reason == IEEE80211_FRAME_RELEASE_PSP)
+					info->flags |= IEEE80211_TX_STATUS_PSP |
+						       IEEE80211_TX_CTL_REQ_TX_STATUS; /* we want a callback after ACK */
+				else
+					info->flags |= IEEE80211_TX_STATUS_EOSP |
+						       IEEE80211_TX_CTL_REQ_TX_STATUS;
+			}
 
 			if (qoshdr)
 				tids |= BIT(*qoshdr & IEEE80211_QOS_CTL_TID_MASK);
@@ -1534,6 +1549,7 @@ void ieee80211_sta_eosp_irqsafe(struct ieee80211_sta *pubsta)
 	if (!skb) {
 		/* too bad ... but race is better than loss */
 		clear_sta_flag(sta, WLAN_STA_SP);
+		printk(KERN_DEBUG "clearing WLAN_STA_SP for %pM\n", sta->sta.addr);
 		return;
 	}
 
