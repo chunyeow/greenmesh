@@ -208,6 +208,36 @@ static int ieee80211_do_open(struct net_device *dev, bool coming_up)
 		sdata->bss = &sdata->u.ap;
 		break;
 	case NL80211_IFTYPE_MESH_POINT:
+		/*
+		 * the struct ieee80211_if_ap is re-used
+		 * for mesh multicast PS buffering
+		 */
+		printk(KERN_DEBUG "allocating sdata->bss\n");
+		sdata->bss = kmalloc(sizeof(struct ieee80211_if_ap),
+				     GFP_KERNEL);
+		if (!sdata->bss) {
+			res = -ENOMEM;
+			goto err_del_bss;
+		}
+		__skb_queue_head_init(&sdata->bss->ps_bc_buf);
+		memset(sdata->bss->tim, 0, sizeof(unsigned long) * BITS_TO_LONGS(IEEE80211_MAX_AID + 1));
+		/* for AP mode the beacon is allocated in hostap:src/ap/beacon.c */
+		sdata->bss->beacon = kmalloc (sizeof(struct beacon_data),
+					      GFP_KERNEL);
+		if (!sdata->bss->beacon) {
+			kfree(sdata->bss);
+			res = -ENOMEM;
+			goto err_del_bss;
+		}
+		/*
+		 * dtim_period is set in ieee80211_start_mesh,
+		 * fill rest with some pseudo-useful values
+		 */
+		sdata->bss->beacon->head_len = 1;
+		sdata->bss->beacon->tail_len = 1;
+		sdata->bss->beacon->head = &sdata->bss->beacon->head_len;
+		sdata->bss->beacon->tail = &sdata->bss->beacon->tail_len;
+		break;
 	case NL80211_IFTYPE_STATION:
 	case NL80211_IFTYPE_MONITOR:
 	case NL80211_IFTYPE_ADHOC:
@@ -486,6 +516,11 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
 		/* free all potentially still buffered bcast frames */
 		local->total_ps_buffered -= skb_queue_len(&sdata->u.ap.ps_bc_buf);
 		skb_queue_purge(&sdata->u.ap.ps_bc_buf);
+	} else if (sdata->vif.type == NL80211_IFTYPE_MESH_POINT && sdata->bss) {
+		/* free all potentially still buffered bcast frames */
+		printk(KERN_DEBUG "purging ps_bc_buf (%d frames)", skb_queue_len(&sdata->bss->ps_bc_buf));
+		local->total_ps_buffered -= skb_queue_len(&sdata->bss->ps_bc_buf);
+		skb_queue_purge(&sdata->bss->ps_bc_buf);
 	}
 
 	if (going_down)
@@ -526,9 +561,20 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
 		 * Disable beaconing here for mesh only, AP and IBSS
 		 * are already taken care of.
 		 */
-		if (sdata->vif.type == NL80211_IFTYPE_MESH_POINT)
+		if (sdata->vif.type == NL80211_IFTYPE_MESH_POINT) {
 			ieee80211_bss_info_change_notify(sdata,
 				BSS_CHANGED_BEACON_ENABLED);
+			if (sdata->bss) {
+				struct beacon_data *old_beacon =
+					rtnl_dereference(sdata->bss->beacon);
+
+				printk(KERN_DEBUG "freeing sdata->bss\n");
+				RCU_INIT_POINTER(sdata->bss->beacon, NULL);
+				synchronize_rcu();
+				kfree(old_beacon);
+				kfree(sdata->bss);
+			}
+		}
 
 		/*
 		 * Free all remaining keys, there shouldn't be any,
