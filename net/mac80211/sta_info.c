@@ -540,6 +540,7 @@ void sta_info_recalc_tim(struct sta_info *sta)
 	bool indicate_tim = false;
 	u8 ignore_for_tim = sta->sta.uapsd_queues;
 	int ac;
+	u16 id;
 
 	if (WARN_ON_ONCE(!sta->sdata->bss))
 		return;
@@ -580,10 +581,19 @@ void sta_info_recalc_tim(struct sta_info *sta)
  done:
 	spin_lock_irqsave(&local->tim_lock, flags);
 
-	if (indicate_tim)
-		__bss_tim_set(bss, sta->sta.aid);
+	if (ieee80211_vif_is_mesh(&sta->sdata->vif))
+		id = le16_to_cpu(sta->plid);
 	else
-		__bss_tim_clear(bss, sta->sta.aid);
+		id = sta->sta.aid;
+
+	if (indicate_tim)
+		__bss_tim_set(bss, id);
+	else
+		__bss_tim_clear(bss, id);
+
+	printk(KERN_DEBUG "%s TIM bit for %pM (%d)\n",
+	       indicate_tim ? "setting" : "clearing",
+	       sta->sta.addr, id);
 
 	if (local->ops->set_tim) {
 		local->tim_in_locked_section = true;

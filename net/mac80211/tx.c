@@ -2279,6 +2279,45 @@ static void ieee80211_beacon_add_tim(struct ieee80211_if_ap *bss,
 	}
 }
 
+static int mesh_add_tim_ie(struct sk_buff *skb, struct ieee80211_local *local,
+			    struct ieee80211_if_ap *bss,
+			    u16 *tim_offset, u16 *tim_length)
+{
+	struct beacon_data *beacon;
+	u16 tmp = skb->len;
+
+	if (WARN_ON(!bss))
+		return -ENOMEM;
+	beacon = rcu_dereference(bss->beacon);
+	if (WARN_ON(!beacon))
+		return -ENOMEM;
+
+	/*
+	 * Not very nice, but we want to allow the driver to call
+	 * ieee80211_beacon_get() as a response to the set_tim()
+	 * callback. That, however, is already invoked under the
+	 * sta_lock to guarantee consistent and race-free update
+	 * of the tim bitmap in mac80211 and the driver.
+	 */
+	if (local->tim_in_locked_section) {
+		ieee80211_beacon_add_tim(bss, skb, beacon);
+	} else {
+		unsigned long flags;
+
+		spin_lock_irqsave(&local->tim_lock, flags); /* local->sta_lock in older versions */
+		ieee80211_beacon_add_tim(bss, skb, beacon);
+		spin_unlock_irqrestore(&local->tim_lock, flags);
+	}
+
+	/* these are currently not used by most drivers */
+	if (tim_offset)
+		*tim_offset = tmp - local->hw.extra_tx_headroom; /* previously reserved */
+	if (tim_length)
+		*tim_length = skb->len - tmp;
+
+	return 0;
+}
+
 struct sk_buff *ieee80211_beacon_get_tim(struct ieee80211_hw *hw,
 					 struct ieee80211_vif *vif,
 					 u16 *tim_offset, u16 *tim_length)
@@ -2383,6 +2422,7 @@ struct sk_buff *ieee80211_beacon_get_tim(struct ieee80211_hw *hw,
 				    2 + /* NULL SSID */
 				    2 + 8 + /* supported rates */
 				    2 + 3 + /* DS params */
+				    256 + /* TIM IE */
 				    2 + (IEEE80211_MAX_SUPP_RATES - 8) +
 				    2 + sizeof(struct ieee80211_ht_cap) +
 				    2 + sizeof(struct ieee80211_ht_info) +
@@ -2414,6 +2454,7 @@ struct sk_buff *ieee80211_beacon_get_tim(struct ieee80211_hw *hw,
 
 		if (ieee80211_add_srates_ie(&sdata->vif, skb) ||
 		    mesh_add_ds_params_ie(skb, sdata) ||
+		    mesh_add_tim_ie(skb, local, sdata->bss, tim_offset, tim_length) ||
 		    ieee80211_add_ext_srates_ie(&sdata->vif, skb) ||
 		    mesh_add_rsn_ie(skb, sdata) ||
 		    mesh_add_ht_cap_ie(skb, sdata) ||

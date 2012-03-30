@@ -434,6 +434,7 @@ int mesh_plink_open(struct sta_info *sta)
 
 	spin_lock_bh(&sta->lock);
 	get_random_bytes(&llid, 2);
+	llid &= 0xff00; /* workaround: ieee80211_beacon_add_tim works only for < 256 */
 	sta->llid = llid;
 	if (sta->plink_state != NL80211_PLINK_LISTEN) {
 		spin_unlock_bh(&sta->lock);
@@ -670,6 +671,7 @@ void mesh_rx_plink_frame(struct ieee80211_sub_if_data *sdata, struct ieee80211_m
 			sta->plink_state = NL80211_PLINK_OPN_RCVD;
 			sta->plid = plid;
 			get_random_bytes(&llid, 2);
+			llid &= 0xff00; /* workaround: ieee80211_beacon_add_tim works only for < 256 */
 			sta->llid = llid;
 			mesh_plink_timer_set(sta, dot11MeshRetryTimeout(sdata));
 			spin_unlock_bh(&sta->lock);
