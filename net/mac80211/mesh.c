@@ -695,6 +695,14 @@ void ieee80211_start_mesh(struct ieee80211_sub_if_data *sdata)
 	set_bit(MESH_WORK_HOUSEKEEPING, &ifmsh->wrkq_flags);
 	ieee80211_mesh_root_setup(ifmsh);
 	ieee80211_queue_work(&local->hw, &sdata->work);
+
+	/* sdata->bss->beacon->dtim_period was not set on interface start */
+	sdata->bss->beacon->dtim_period = sdata->vif.bss_conf.dtim_period;
+	sdata->bss->dtim_count = sdata->vif.bss_conf.dtim_period - 1; /* bugfix: sometimes dtim_count < 0 */
+
+	printk(KERN_DEBUG "starting mesh with beacon interval %d, dtim_period %d\n",
+	       sdata->vif.bss_conf.beacon_int, sdata->vif.bss_conf.dtim_period);
+
 	ieee80211_bss_info_change_notify(sdata, BSS_CHANGED_BEACON |
 						BSS_CHANGED_BEACON_ENABLED |
 						BSS_CHANGED_BEACON_INT);
