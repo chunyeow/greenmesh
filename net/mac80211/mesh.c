@@ -779,6 +779,25 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 		mesh_neighbour_update(mgmt, supp_rates, sdata, &elems);
 	}
 
+	if (elems.tim) {
+		struct sta_info *sta;
+		bool has_buffered = false;
+
+		rcu_read_lock();
+		sta = sta_info_get(sdata, mgmt->sa);
+		if (sta) {
+			has_buffered = ieee80211_check_tim(elems.tim,
+				elems.tim_len, le16_to_cpu(sta->llid));
+
+			if (has_buffered)
+				printk(KERN_DEBUG "%pM has unicast data buffered for our llid %d\n",
+				       mgmt->sa, le16_to_cpu(sta->llid));
+
+			/* TODO reverse PSP */
+		}
+		rcu_read_unlock();
+	}
+
 	if (elems.awake_window) {
 		__le16 tmp;
 		u16 awake_window;
