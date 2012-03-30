@@ -378,6 +378,8 @@ struct ieee80211_bss_conf {
  * @IEEE80211_TX_CTL_DONTFRAG: Don't fragment this packet even if it
  *	would be fragmented by size (this is optional, only used for
  *	monitor injection).
+ * @IEEE80211_TX_STATUS_PSP: This packet marks the start or the re-check
+ * 	of a peer service period
  *
  * Note: If you have to add new flags to the enumeration, then don't
  *	 forget to update %IEEE80211_TX_TEMPORARY_FLAGS when necessary.
@@ -412,6 +414,7 @@ enum mac80211_tx_control_flags {
 	IEEE80211_TX_STATUS_EOSP		= BIT(28),
 	IEEE80211_TX_CTL_USE_MINRATE		= BIT(29),
 	IEEE80211_TX_CTL_DONTFRAG		= BIT(30),
+	IEEE80211_TX_STATUS_PSP			= BIT(31),
 };
 
 #define IEEE80211_TX_CTL_STBC_SHIFT		23
@@ -428,6 +431,7 @@ enum mac80211_tx_control_flags {
 	IEEE80211_TX_CTL_RATE_CTRL_PROBE | IEEE80211_TX_CTL_POLL_RESPONSE |   \
 	IEEE80211_TX_CTL_MORE_FRAMES | IEEE80211_TX_CTL_LDPC |		      \
 	IEEE80211_TX_CTL_STBC | IEEE80211_TX_STATUS_EOSP)
+/* TODO what about IEEE80211_TX_STATUS_PSP ? */
 
 /**
  * enum mac80211_rate_control_flags - per-rate flags set by the
@@ -1743,10 +1747,16 @@ enum ieee80211_tx_sync_type {
  * @IEEE80211_FRAME_RELEASE_PSPOLL: frame released for PS-Poll
  * @IEEE80211_FRAME_RELEASE_UAPSD: frame(s) released due to
  *	frame received on trigger-enabled AC
+ * @IEEE80211_FRAME_RELEASE_PSP_TRIGGER: frame(s) released as
+ * 	peer trigger frame(s) for mesh peer service period initiation
+ * @IEEE80211_FRAME_RELEASE_PSP: frame(s) released during a
+ * 	peer service period
  */
 enum ieee80211_frame_release_type {
 	IEEE80211_FRAME_RELEASE_PSPOLL,
 	IEEE80211_FRAME_RELEASE_UAPSD,
+	IEEE80211_FRAME_RELEASE_PSP_TRIGGER,
+	IEEE80211_FRAME_RELEASE_PSP,
 };
 
 /**
