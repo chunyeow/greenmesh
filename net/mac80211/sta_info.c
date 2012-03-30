@@ -1200,6 +1200,9 @@ ieee80211_sta_ps_deliver_response(struct sta_info *sta,
 	unsigned long driver_release_tids = 0;
 	struct sk_buff_head frames;
 
+	if (!test_sta_flag(sta, WLAN_STA_SP))
+		printk(KERN_DEBUG "setting WLAN_STA_SP for %pM\n", sta->sta.addr);
+
 	/* Service or PS-Poll period starts */
 	set_sta_flag(sta, WLAN_STA_SP);
 
@@ -1244,7 +1247,8 @@ ieee80211_sta_ps_deliver_response(struct sta_info *sta,
 			 * certainly there's more data if we release just a
 			 * single frame now (from a single TID).
 			 */
-			if (reason == IEEE80211_FRAME_RELEASE_PSPOLL &&
+			if ((reason == IEEE80211_FRAME_RELEASE_PSPOLL ||
+			     reason == IEEE80211_FRAME_RELEASE_PSP) &&
 			    hweight16(driver_release_tids) > 1) {
 				more_data = true;
 				driver_release_tids =
@@ -1310,8 +1314,11 @@ ieee80211_sta_ps_deliver_response(struct sta_info *sta,
 			/*
 			 * Use MoreData flag to indicate whether there are
 			 * more buffered frames for this STA
+			 *
+			 * in PSP after a re-check a QoS null will follow
 			 */
-			if (more_data || !skb_queue_empty(&frames))
+			if (more_data || !skb_queue_empty(&frames) ||
+			    reason == IEEE80211_FRAME_RELEASE_PSP)
 				hdr->frame_control |=
 					cpu_to_le16(IEEE80211_FCTL_MOREDATA);
 			else
@@ -1343,8 +1350,12 @@ ieee80211_sta_ps_deliver_response(struct sta_info *sta,
 
 		ieee80211_add_pending_skbs(local, &pending);
 
-		sta_info_recalc_tim(sta);
+		if (reason != IEEE80211_FRAME_RELEASE_PSP) /* recalc TIM after PSP */
+			sta_info_recalc_tim(sta);
 	} else {
+		/* TODO remove, sometimes we get here when using HT rates  */
+		printk(KERN_DEBUG "driver_release_tids=true, calling driver with n_frames=%d, more_data=%s\n",
+		       n_frames, more_data ? "true" : "false");
 		/*
 		 * We need to release a frame that is buffered somewhere in the
 		 * driver ... it'll have to handle that.
