@@ -1279,6 +1279,7 @@ static int copy_mesh_setup(struct ieee80211_if_mesh *ifmsh,
 						sizeof(setup->mcast_rate));
 
 	sdata->vif.bss_conf.beacon_int = setup->beacon_interval;
+	sdata->vif.bss_conf.dtim_period = setup->dtim_period;
 
 	return 0;
 }

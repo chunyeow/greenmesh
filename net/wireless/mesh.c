@@ -37,6 +37,7 @@
 #define MESH_MAX_PREQ_RETRIES	4
 
 #define MESH_DEFAULT_BEACON_INTERVAL	1000 	/* in 1024 us units (=TUs) */
+#define MESH_DEFAULT_DTIM_PERIOD	4
 #define MESH_DEFAULT_AWAKE_WINDOW	10	/* given in Table Y-1 */
 
 
@@ -69,6 +70,7 @@ const struct mesh_setup default_mesh_setup = {
 	.ie_len = 0,
 	.is_secure = false,
 	.beacon_interval = MESH_DEFAULT_BEACON_INTERVAL,
+	.dtim_period = MESH_DEFAULT_DTIM_PERIOD,
 };
 
 int __cfg80211_join_mesh(struct cfg80211_registered_device *rdev,
