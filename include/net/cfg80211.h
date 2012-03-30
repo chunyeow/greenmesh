@@ -822,6 +822,7 @@ struct mesh_config {
  * @is_authenticated: this mesh requires authentication
  * @is_secure: this mesh uses security
  * @mcast_rate: multicat rate for Mesh Node [6Mbps is the default for 802.11a]
+ * @beacon_interval: beacon interval to use
  *
  * These parameters are fixed when the mesh is created.
  */
@@ -835,6 +836,7 @@ struct mesh_setup {
 	bool is_authenticated;
 	bool is_secure;
 	int mcast_rate[IEEE80211_NUM_BANDS];
+	u16 beacon_interval;
 };
 
 /**
