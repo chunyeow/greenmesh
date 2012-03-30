@@ -1354,6 +1354,47 @@ void ieee80211_sta_ps_deliver_uapsd(struct sta_info *sta)
 					  IEEE80211_FRAME_RELEASE_UAPSD);
 }
 
+void ieee80211_sta_ps_deliver_mesh_awake_window(struct sta_info *sta)
+{
+	struct ieee80211_sub_if_data *sdata = sta->sdata;
+	int ac, unicast_buffered = 0;
+
+	/*
+	 * a mesh peer has just announced its awake window.
+	 * if unicast frames buffered in PS queues,
+	 * start a peer service period:
+	 * send QoS Null frame with RSPI=1
+	 * when ACKed, send buffered frames (-> sta_ps_deliver_mesh_psp)
+	 * after last frame, check if new frames buffered
+	 *
+	 * TODO start PSP depending on neighbors TIM map and own queues
+	 * TODO employ awake window duration
+	 * TODO use correct TID
+	 */
+
+	if (test_sta_flag(sta, WLAN_STA_SP)) {
+		printk(KERN_DEBUG "already in PSP with %pM\n", sta->sta.addr);
+		return;
+	}
+
+	for (ac = 0; ac < IEEE80211_NUM_ACS; ac++)
+		unicast_buffered += skb_queue_len(&sta->ps_tx_buf[ac]) +
+				    skb_queue_len(&sta->tx_filtered[ac]);
+
+	if (unicast_buffered > 0)
+		ieee80211_send_mesh_null_response(sdata, sta, 7,
+					 IEEE80211_FRAME_RELEASE_PSP_TRIGGER);
+
+	/* performance loss under load, since peer misses chance to transmit */
+	/* else if (unicast_buffered == 1) {
+		printk(KERN_DEBUG "sending single frame to %pM without PSP\n",
+			       sta->sta.addr);
+
+		ieee80211_sta_ps_deliver_response(sta, 1, 0,
+				IEEE80211_FRAME_RELEASE_PSPOLL);
+	} */
+}
+
 void ieee80211_sta_block_awake(struct ieee80211_hw *hw,
 			       struct ieee80211_sta *pubsta, bool block)
 {

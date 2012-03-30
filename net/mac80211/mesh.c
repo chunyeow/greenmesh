@@ -774,11 +774,18 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	if (elems.awake_window) {
 		__le16 tmp;
 		u16 awake_window;
+		struct sta_info *sta;
 
 		memcpy(&tmp, elems.awake_window, 2);
 		awake_window = le16_to_cpu(tmp);
 
-		/* TODO check if frames buffered */
+		rcu_read_lock();
+
+		sta = sta_info_get(sdata, mgmt->sa);
+		if (sta && awake_window)
+			ieee80211_sta_ps_deliver_mesh_awake_window(sta);
+
+		rcu_read_unlock();
 	}
 }
 
