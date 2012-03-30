@@ -394,6 +394,16 @@ void ieee80211_tx_status(struct ieee80211_hw *hw, struct sk_buff *skb)
 			return;
 		}
 
+		/*
+		 * if the neighbor has ACKed our peer trigger frame,
+		 * we are in a peer service period.
+		 * - or -
+		 * after sending the (maybe) last frame of a PSP, we
+		 * should check, if there are new packets in the PS queue
+		 */
+		if (acked && info->flags & IEEE80211_TX_STATUS_PSP)
+			ieee80211_sta_ps_deliver_mesh_psp(sta);
+
 		if ((local->hw.flags & IEEE80211_HW_HAS_RATE_CONTROL) &&
 		    (rates_idx != -1))
 			sta->last_tx_rate = info->status.rates[rates_idx];

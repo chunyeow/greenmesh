@@ -566,5 +566,6 @@ void ieee80211_sta_ps_deliver_wakeup(struct sta_info *sta);
 void ieee80211_sta_ps_deliver_poll_response(struct sta_info *sta);
 void ieee80211_sta_ps_deliver_uapsd(struct sta_info *sta);
 void ieee80211_sta_ps_deliver_mesh_awake_window(struct sta_info *sta);
+void ieee80211_sta_ps_deliver_mesh_psp(struct sta_info *sta);
 
 #endif /* STA_INFO_H */

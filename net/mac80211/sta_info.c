@@ -1460,6 +1460,42 @@ void ieee80211_sta_ps_deliver_mesh_awake_window(struct sta_info *sta)
 	} */
 }
 
+void ieee80211_sta_ps_deliver_mesh_psp(struct sta_info *sta)
+{
+	struct ieee80211_sub_if_data *sdata = sta->sdata;
+	int ac, unicast_buffered = 0;
+
+	/*
+	 * either we or the peer have initiated a
+	 * peer service period or we re-check the PS
+	 * queue
+	 *
+	 * this function is called again after sending
+	 * the the _currently_ buffered packets
+	 * repeat until the buffer is empty
+	 * -> dynamic length PSP
+	 *
+	 * TODO only accept PSP with peers
+	 * TODO may crash when re-check + peer init at same time?
+	 */
+	for (ac = 0; ac < IEEE80211_NUM_ACS; ac++)
+		unicast_buffered += skb_queue_len(&sta->ps_tx_buf[ac]) +
+				    skb_queue_len(&sta->tx_filtered[ac]);
+
+	if (unicast_buffered > 0) {
+		printk(KERN_DEBUG "%s PSP with %pM -> sending %d buffered frames\n",
+		       test_sta_flag(sta, WLAN_STA_SP) ? "continuing" : "starting",
+		       sta->sta.addr, unicast_buffered);
+
+		/* send all buffered frames, ps_deliver_response sets WLAN_STA_SP */
+		ieee80211_sta_ps_deliver_response(sta, unicast_buffered,
+			0, IEEE80211_FRAME_RELEASE_PSP);
+	} else {
+		ieee80211_send_mesh_null_response(sdata, sta, 7,
+			IEEE80211_FRAME_RELEASE_PSP);
+	}
+}
+
 void ieee80211_sta_block_awake(struct ieee80211_hw *hw,
 			       struct ieee80211_sta *pubsta, bool block)
 {

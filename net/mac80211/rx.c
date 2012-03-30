@@ -1400,6 +1400,20 @@ ieee80211_rx_h_sta_process(struct ieee80211_rx_data *rx)
 		}
 	}
 
+	/* check for peer service period trigger frames */
+	/* TODO move this in above code. But this may conflict with morefrags */
+	if (ieee80211_vif_is_mesh(&rx->sdata->vif) &&
+	    ieee80211_is_data_qos(hdr->frame_control) &&
+	    !test_sta_flag(sta, WLAN_STA_SP)) { /* if we are in PSP already, we will re-check on our own */
+		__le16 *qc = (__le16 *) ieee80211_get_qos_ctl(hdr);
+		if(*qc & cpu_to_le16(IEEE80211_QOS_CTL_RSPI)) {
+			printk(KERN_DEBUG "received peer trigger frame from %pM\n",
+			       hdr->addr2);
+
+			ieee80211_sta_ps_deliver_mesh_psp(sta);
+		}
+	}
+
 	/*
 	 * Drop (qos-)data::nullfunc frames silently, since they
 	 * are used only to control station power saving mode.
