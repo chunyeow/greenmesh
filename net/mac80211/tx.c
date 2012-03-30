@@ -1454,7 +1454,8 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata, struct sk_buff *skb)
 
 	if (ieee80211_vif_is_mesh(&sdata->vif) &&
 	    ieee80211_is_data(hdr->frame_control) &&
-		!is_multicast_ether_addr(hdr->addr1))
+		!is_multicast_ether_addr(hdr->addr1) &&
+		!ieee80211_is_qos_nullfunc(hdr->frame_control)) /* these are addressed to peers and do not need a path to a distant destination */
 			if (mesh_nexthop_resolve(skb, sdata)) {
 				/* skb queued: don't free */
 				rcu_read_unlock();

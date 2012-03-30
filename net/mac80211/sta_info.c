@@ -1122,6 +1122,71 @@ static void ieee80211_send_null_response(struct ieee80211_sub_if_data *sdata,
 	ieee80211_xmit(sdata, skb);
 }
 
+static void ieee80211_send_mesh_null_response(struct ieee80211_sub_if_data *sdata,
+					 struct sta_info *sta, int tid,
+					 enum ieee80211_frame_release_type reason)
+{
+	struct ieee80211_local *local = sdata->local;
+	struct ieee80211_hdr *nullfunc; /* use 4addr header */
+	struct sk_buff *skb;
+	int size = sizeof(*nullfunc);
+	__le16 fc;
+	__le16 *qos_control;
+	struct ieee80211_tx_info *info;
+
+	skb = dev_alloc_skb(local->hw.extra_tx_headroom + size + 2);
+	if (!skb)
+		return;
+	skb_reserve(skb, local->hw.extra_tx_headroom);
+
+	nullfunc = (void *) skb_put(skb, size);
+
+	fc = cpu_to_le16(IEEE80211_FTYPE_DATA |
+			 IEEE80211_STYPE_QOS_NULLFUNC);
+	ieee80211_fill_mesh_addresses(nullfunc, &fc,
+					       sta->sta.addr,
+					       sdata->vif.addr);
+	/* HWMP will not see this frame -> set addr 1 immediately */
+	memcpy(nullfunc->addr1, sta->sta.addr, ETH_ALEN);
+	nullfunc->frame_control = fc;
+	nullfunc->duration_id = 0;
+
+	/* append qos control field (missing in ieee80211_hdr) */
+	qos_control = (__le16*) skb_put(skb, 2);
+	*qos_control = cpu_to_le16(tid);
+	if (reason == IEEE80211_FRAME_RELEASE_PSP_TRIGGER)
+		*qos_control |= cpu_to_le16(IEEE80211_QOS_CTL_RSPI);
+	else
+		*qos_control |= cpu_to_le16(IEEE80211_QOS_CTL_EOSP);
+
+	skb->priority = tid;
+	skb_set_queue_mapping(skb, ieee802_1d_to_ac[tid]);
+
+	info = IEEE80211_SKB_CB(skb);
+
+	/*
+	 * do not PS buffer this frame,
+	 * request ieee80211_status callback,
+	 * set tx status flag for (re-)start/end of PSP
+	 */
+	if (reason == IEEE80211_FRAME_RELEASE_PSP_TRIGGER)
+		info->flags |= IEEE80211_TX_CTL_POLL_RESPONSE |
+			       IEEE80211_TX_CTL_REQ_TX_STATUS |
+			       IEEE80211_TX_STATUS_PSP;
+	else
+		info->flags |= IEEE80211_TX_CTL_POLL_RESPONSE |
+			       IEEE80211_TX_CTL_REQ_TX_STATUS |
+			       IEEE80211_TX_STATUS_EOSP;
+
+	printk(KERN_DEBUG "sending %s to %pM\n",
+	       reason == IEEE80211_FRAME_RELEASE_PSP_TRIGGER ? "RSPI" : "EOSP",
+	       sta->sta.addr);
+
+	drv_allow_buffered_frames(local, sta, BIT(tid), 1, reason, false);
+
+	ieee80211_xmit(sdata, skb);
+}
+
 static void
 ieee80211_sta_ps_deliver_response(struct sta_info *sta,
 				  int n_frames, u8 ignored_acs,

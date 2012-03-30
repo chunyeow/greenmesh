@@ -183,7 +183,14 @@ void ieee80211_set_qos_hdr(struct ieee80211_sub_if_data *sdata,
 
 		/* qos header is 2 bytes */
 		*p++ = ack_policy | tid;
-		*p = ieee80211_vif_is_mesh(&sdata->vif) ?
-			(IEEE80211_QOS_CTL_MESH_CONTROL_PRESENT >> 8) : 0;
+
+		if (ieee80211_vif_is_mesh(&sdata->vif)) {
+			/* Nulls don't have a mesh header, preserve RSPI flag */
+			if (!ieee80211_is_qos_nullfunc(hdr->frame_control))
+				*p = (*p & (IEEE80211_QOS_CTL_RSPI >> 8)) |
+					(IEEE80211_QOS_CTL_MESH_CONTROL_PRESENT >> 8);
+		} else {
+			*p = 0;
+		}
 	}
 }
